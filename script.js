@@ -7,17 +7,17 @@ const account1 = {
   pin: 1111,
 
   movementsDates: [
-    '2012-01-18T21:31:17.178Z',
-    '2012-02-23T07:42:02.383Z',
-    '2022-03-28T09:15:04.904Z',
-    '2022-04-01T10:17:24.185Z',
-    '2022-05-08T14:11:59.604Z',
-    '2022-07-26T17:01:17.194Z',
-    '2022-08-10T23:36:17.929Z',
-    '2022-08-13T10:51:36.790Z',
+    '2022-04-01T13:15:33.035Z',
+    '2022-04-30T09:48:16.867Z',
+    '2022-05-25T06:04:23.907Z',
+    '2022-06-22T14:18:46.235Z',
+    '2022-07-05T16:33:06.386Z',
+    '2022-07-10T14:43:26.374Z',
+    '2022-08-12T18:49:59.371Z',
+    '2022-08-13T12:01:20.894Z',
   ],
   currency: 'EUR',
-  locale: 'pt-PT',
+  locale: 'pt-PT', // de-DE
 };
 
 const account2 = {
@@ -27,21 +27,22 @@ const account2 = {
   pin: 2222,
 
   movementsDates: [
-    '2012-01-18T21:31:17.178Z',
-    '2012-02-23T07:42:02.383Z',
-    '2022-03-28T09:15:04.904Z',
-    '2022-04-01T10:17:24.185Z',
-    '2022-05-08T14:11:59.604Z',
-    '2022-07-26T17:01:17.194Z',
-    '2022-08-10T23:36:17.929Z',
-    '2022-08-13T10:51:36.790Z',
+    '2022-04-01T13:15:33.035Z',
+    '2022-04-30T09:48:16.867Z',
+    '2022-05-25T06:04:23.907Z',
+    '2022-06-25T14:18:46.235Z',
+    '2022-07-05T16:33:06.386Z',
+    '2022-07-10T14:43:26.374Z',
+    '2022-08-12T18:49:59.371Z',
+    '2022-08-13T12:01:20.894Z',
   ],
   currency: 'USD',
   locale: 'en-US',
 };
 
 const accounts = [account1, account2];
-//---------------------------------------------------------------------------------
+
+/////////////////////////////////////////////////
 // Elements
 const labelWelcome = document.querySelector('.welcome');
 const labelDate = document.querySelector('.date');
@@ -68,16 +69,12 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-/////////////////////////////////////////////////
 // Functions
-
 const formatMovementDate = function (date, locale) {
   const calcDaysPassed = (date1, date2) =>
-    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+    Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
 
   const daysPassed = calcDaysPassed(new Date(), date);
-  console.log(daysPassed);
-
   if (daysPassed === 0) return 'Today';
   if (daysPassed === 1) return 'Yesterday';
   if (daysPassed <= 7) return `${daysPassed} days ago`;
@@ -104,7 +101,7 @@ const displayMovements = function (acc, sort = false) {
     const date = new Date(acc.movementsDates[i]);
     const displayDate = formatMovementDate(date, acc.locale);
 
-    const formattedMov = formatCur(mov, acc.locale, acc.currency);
+    const formatredMov = formatCur(mov, acc.locale, acc.currency);
 
     const html = `
       <div class="movements__row">
@@ -112,7 +109,7 @@ const displayMovements = function (acc, sort = false) {
       i + 1
     } ${type}</div>
         <div class="movements__date">${displayDate}</div>
-        <div class="movements__value">${formattedMov}</div>
+        <div class="movements__value">${formatredMov}</div>
       </div>
     `;
 
@@ -168,24 +165,26 @@ const startLogOutTimer = function () {
     const min = String(Math.trunc(time / 60)).padStart(2, 0);
     const sec = String(time % 60).padStart(2, 0);
 
+    //In each callback call print the reamning to UI
     labelTimer.textContent = `${min}:${sec}`;
 
+    //When 0 sec , stop timer and logout
     if (time === 0) {
       clearInterval(timer);
-      labelWelcome.textContent = 'Log in to get started';
+      labelWelcome.textContent = `Log in to get started`;
       containerApp.style.opacity = 0;
     }
     time--;
   };
-  //Initial Timer value [2Min]
+  //Set time
   let time = 120;
-  // Call the timer every second
+
+  //Call the timer every second
   tick();
   const timer = setInterval(tick, 1000);
   return timer;
 };
 
-///////////////////////////////////////
 //Global
 let currentAccount, timer;
 
@@ -203,6 +202,7 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
+
     const now = new Date();
     const options = {
       hour: 'numeric',
@@ -212,17 +212,20 @@ btnLogin.addEventListener('click', function (e) {
       year: 'numeric',
     };
 
+    //Get the locale from the user
     labelDate.textContent = new Intl.DateTimeFormat(
       currentAccount.locale,
       options
     ).format(now);
 
+    // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
 
-    // Timer
+    //Timer
     if (timer) clearInterval(timer);
     timer = startLogOutTimer();
+
     updateUI(currentAccount);
   }
 });
@@ -245,13 +248,14 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
 
-    // Add transfer date
+    //Add Transfer date
     currentAccount.movementsDates.push(new Date().toISOString());
     receiverAcc.movementsDates.push(new Date().toISOString());
 
+    // Update UI
     updateUI(currentAccount);
 
-    // Reset timer
+    //Reset Timer
     clearInterval(timer);
     timer = startLogOutTimer();
   }
@@ -263,12 +267,14 @@ btnLoan.addEventListener('click', function (e) {
   const amount = Math.floor(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    //SetTimeout to make it look real when u reauest a loan from the bank
     setTimeout(function () {
       currentAccount.movements.push(amount);
+
       currentAccount.movementsDates.push(new Date().toISOString());
+
       updateUI(currentAccount);
 
-      // Reset timer
       clearInterval(timer);
       timer = startLogOutTimer();
     }, 2500);
@@ -287,7 +293,9 @@ btnClose.addEventListener('click', function (e) {
       acc => acc.username === currentAccount.username
     );
     console.log(index);
+
     accounts.splice(index, 1);
+
     containerApp.style.opacity = 0;
   }
 
@@ -297,6 +305,6 @@ btnClose.addEventListener('click', function (e) {
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
