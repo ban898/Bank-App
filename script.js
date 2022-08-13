@@ -17,7 +17,7 @@ const account1 = {
     '2022-08-13T12:01:20.894Z',
   ],
   currency: 'EUR',
-  locale: 'pt-PT', // de-DE
+  locale: 'pt-PT',
 };
 
 const account2 = {
@@ -42,7 +42,6 @@ const account2 = {
 
 const accounts = [account1, account2];
 
-/////////////////////////////////////////////////
 // Elements
 const labelWelcome = document.querySelector('.welcome');
 const labelDate = document.querySelector('.date');
@@ -165,7 +164,7 @@ const startLogOutTimer = function () {
     const min = String(Math.trunc(time / 60)).padStart(2, 0);
     const sec = String(time % 60).padStart(2, 0);
 
-    //In each callback call print the reamning to UI
+    //In each callback call print the reamning time to the UI
     labelTimer.textContent = `${min}:${sec}`;
 
     //When 0 sec , stop timer and logout
@@ -188,7 +187,6 @@ const startLogOutTimer = function () {
 //Global
 let currentAccount, timer;
 
-// Event handlers
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
 
@@ -203,6 +201,7 @@ btnLogin.addEventListener('click', function (e) {
     }`;
     containerApp.style.opacity = 100;
 
+    //"Style" the locale options
     const now = new Date();
     const options = {
       hour: 'numeric',
@@ -218,7 +217,6 @@ btnLogin.addEventListener('click', function (e) {
       options
     ).format(now);
 
-    // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
 
@@ -244,7 +242,7 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.balance >= amount &&
     receiverAcc?.username !== currentAccount.username
   ) {
-    // Doing the transfer
+    // Doing the transfer itself
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
 
@@ -252,7 +250,6 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.movementsDates.push(new Date().toISOString());
     receiverAcc.movementsDates.push(new Date().toISOString());
 
-    // Update UI
     updateUI(currentAccount);
 
     //Reset Timer
@@ -267,12 +264,10 @@ btnLoan.addEventListener('click', function (e) {
   const amount = Math.floor(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
-    //SetTimeout to make it look real when u reauest a loan from the bank
+    //SetTimeout to make it look real when u request a loan from the bank
     setTimeout(function () {
       currentAccount.movements.push(amount);
-
       currentAccount.movementsDates.push(new Date().toISOString());
-
       updateUI(currentAccount);
 
       clearInterval(timer);
@@ -293,9 +288,7 @@ btnClose.addEventListener('click', function (e) {
       acc => acc.username === currentAccount.username
     );
     console.log(index);
-
     accounts.splice(index, 1);
-
     containerApp.style.opacity = 0;
   }
 
